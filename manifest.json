@@ -1,0 +1,16 @@
+{
+  "name": "Life System Tracker",
+  "short_name": "Mind Tracker",
+  "start_url": "/Mind-Trac/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
