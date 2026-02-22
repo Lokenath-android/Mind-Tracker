@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Life System Tracker</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:#e5e7eb;margin:0;padding:20px}
+.card{background:#1e293b;border-radius:16px;padding:16px;margin-bottom:16px}
+h1{text-align:center}
+button{padding:10px 16px;border:none;border-radius:10px;background:#22c55e;color:#000;font-weight:bold}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+label{display:flex;justify-content:space-between;background:#0b1222;padding:10px;border-radius:10px}
+.result{font-size:20px;text-align:center;margin-top:10px}
+.small{font-size:14px;color:#94a3b8}
+input[type=time]{padding:8px;border-radius:8px;border:none;margin-top:10px}
+</style>
+</head>
+<body>
+<h1>Life System Tracker</h1>
+<div class="card">
+<div class="grid" id="habits"></div>
+<button onclick="saveDay()">Save Today</button>
+<div class="result" id="score"></div>
+</div>
+<div class="card">
+<h2>Daily Reminder</h2>
+<input type="time" id="reminderTime">
+<button onclick="setReminder()">Set Reminder</button>
+<div class="small" id="reminderStatus"></div>
+</div>
+<div class="card">
+<h2>Weekly Identity</h2>
+<div id="weekly"></div>
+</div>
+<script>
+const habitList=[
+"Wake before 7 AM","No Phone 30 min","Meditation","Deep Work 90m","Skill Learning","Exercise","7k Steps","Hydration","No Overthinking","Journal","Script","Create","Post","Plan Tomorrow","Sleep before 12"
+];
+const container=document.getElementById('habits');
+habitList.forEach((h,i)=>{
+const l=document.createElement('label');
+l.innerHTML=`${h}<input type='checkbox' id='h${i}'>`;
+container.appendChild(l);
+});
+function saveDay(){
+let score=0;
+habitList.forEach((_,i)=>{if(document.getElementById('h'+i).checked)score++;});
+let week=JSON.parse(localStorage.getItem('week')||'[]');
+week.push(score);
+if(week.length>7)week.shift();
+localStorage.setItem('week',JSON.stringify(week));
+document.getElementById('score').innerHTML=`Today Score: ${score}/15`;
+showWeekly();
+}
+function showWeekly(){
+let week=JSON.parse(localStorage.getItem('week')||'[]');
+if(week.length===0)return;
+let avg=(week.reduce((a,b)=>a+b,0)/week.length).toFixed(1);
+let state="";
+if(avg>=14)state="Monk Mode Identity";
+else if(avg>=12)state="Focused but Fragile";
+else if(avg>=9)state="Default Human Mode";
+else if(avg>=6)state="Mental Noise Zone";
+else state="Overload Mode";
+document.getElementById('weekly').innerHTML=`Average: ${avg}/15<br><b>${state}</b>`;
+}
+showWeekly();
+
+// Reminder System
+function setReminder(){
+const time=document.getElementById('reminderTime').value;
+if(!time)return;
+localStorage.setItem('reminderTime',time);
+document.getElementById('reminderStatus').innerText="Reminder set for "+time;
+Notification.requestPermission();
+}
+
+function checkReminder(){
+const time=localStorage.getItem('reminderTime');
+if(!time)return;
+const now=new Date();
+const current=now.toTimeString().slice(0,5);
+if(current===time && !sessionStorage.getItem('notified')){
+new Notification('Fill your Life System Tracker',{
+body:'Your mind becomes what you repeat daily.'
+});
+sessionStorage.setItem('notified',true);
+setTimeout(()=>sessionStorage.removeItem('notified'),60000);
+}
+}
+setInterval(checkReminder,30000);
+</script>
+</body>
+</html>
